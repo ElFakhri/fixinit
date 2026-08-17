@@ -1,0 +1,11 @@
+# Membuat tabel User
+type Profile @table {
+  id: String!
+
+  email: String! @unique
+  namaLengkap: String!
+  
+  role: String! @default(value: "warga") 
+  
+  dibuatPada: Timestamp! @default(expr: "request.time")
+}

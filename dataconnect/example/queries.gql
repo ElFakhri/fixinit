@@ -1,0 +1,16 @@
+query LihatSemuaUser @auth(level: PUBLIC) {
+  profiles {
+    id
+    email
+    namaLengkap
+    role
+  }
+}
+
+mutation addNewUser($id: String!, $email: String!, $namaLengkap: String!) @auth(level: PUBLIC) {
+  profile_insert(data: {
+    id: $id,
+    email: $email,
+    namaLengkap: $namaLengkap
+  })
+}
