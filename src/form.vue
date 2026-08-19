@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../src/JS/firebase.js"; // Sesuaikan jika foldernya berbeda
+import { onAuthStateChanged } from "firebase/auth";
 
 // 1. Import fungsi tambahan dari Firebase Data Connect
 import {
@@ -16,28 +17,21 @@ import { addNewUser, connectorConfig } from "@dataconnect/generated";
 connectDataConnectEmulator(getDataConnect(connectorConfig), "127.0.0.1", 9399);
 
 const router = useRouter();
-const email = ref("");
-const password = ref("");
+const lokasi = ref("");
+const description = ref("");
 const namaLengkap = ref("");
+const picture = ref(null)
 
 const tanganiForm = async () => {
   try {
-    // Buat akun di Firebase Auth (Lokal)
-    const kredensialUser = await createUserWithEmailAndPassword(
-      auth,
-      email.value,
-      password.value,
-    );
-    const user = kredensialUser.user;
-
-    // Simpan profil ke PostgreSQL Data Connect (Sekarang sudah di-lock ke Lokal!)
+    // Simpan Pengaduan ke PostgreSQL Data Connect (Sekarang sudah di-lock ke Lokal!)
     await addFormPengaduan({
       id: user.uid,
       namaLengkap: namaLengkap.value,
       email: user.email,
       description: description.value,
-      // Qiandra, aku g tahu gimana caranya upload file gambar ke databasemu, gini benar g, tolong benerin. 'Radit'
       picture: picture.value,
+      lokasi: lokasi.value
     });
 
     alert("Formulir berhasil dilapor, menunggu verifikasi!");
@@ -87,7 +81,7 @@ const tanganiForm = async () => {
         </div>
 
         <!-- Form -->
-        <form @submit.prevent="tanganiRegistrasi" class="space-y-6">
+        <form @submit.prevent="tanganiForm" class="space-y-6">
           <div>
             <label for="text" class="block text-sm font-bold text-gray-700 mb-2"
               >Nama</label
@@ -100,53 +94,68 @@ const tanganiForm = async () => {
               required
             />
           </div>
-          <!-- Input Email -->
+
+          <!-- input Emmail Pengguna -->
+
+          <div>
+            <label for="text" class="block text-sm font-bold text-gray-700 mb-2"
+              >Email</label
+            >
+            <input
+              type="text"
+              v-model="email"
+              placeholder="contoh@gmail.com"
+              class="w-full px-5 py-4 rounded bg-gray-50 border border-gray-200 text-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all duration-300"
+              required
+            />
+          </div>
+
+
+          <!-- Input Deskripsi -->
           <div>
             <label
-              for="email"
+              for="description"
               class="block text-sm font-bold text-gray-700 mb-2"
               >Deskripsi</label
             >
-            <input
-              type="email"
-              v-model="email"
+            <textarea
+              type="teks"
+              v-model="description"
               placeholder="Isi deskripsi"
               class="w-full px-5 py-4 rounded bg-gray-50 border border-gray-200 text-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all duration-300"
               required
             />
           </div>
 
-          <!-- Input Password -->
+          <!-- Input Lokasi -->
           <div>
             <label
-              for="password"
-              class="block text-sm font-bold text-gray-700 mb-2"
-              >Foto</label
-            >
-            <input
-              type="password"
-              v-model="password"
-              placeholder="••••••••"
-              class="w-full px-5 py-4 rounded bg-gray-50 border border-gray-200 text-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all duration-300"
-              required
-            />
-          </div>
-          <div>
-            <label
-              for="password"
+              for="lokasi"
               class="block text-sm font-bold text-gray-700 mb-2"
               >Lokasi</label
             >
             <input
               type="text"
-              v-model="password"
-              placeholder="Jl Kusuma Bangsa no 26"
+              v-model="lokasi"
+
+              class="w-full px-5 py-4 rounded bg-gray-50 border border-gray-200 text-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all duration-300"
+              required
+            />
+          </div>
+          <div>
+            <label
+              for="picture"
+              class="block text-sm font-bold text-gray-700 mb-2"
+              ></label
+            >
+            <input
+              type="file" @change="picture = $event.target.files[0]"
               class="w-full px-5 py-4 rounded bg-gray-50 border border-gray-200 text-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all duration-300"
               required
             />
           </div>
 
-          <!-- Tombol Register -->
+          <!-- Tombol Lapor -->
           <button
             type="submit"
             class="w-full bg-yellow-400 text-primary font-extrabold py-4 rounded shadow-lg hover:bg-yellow-500 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 mt-4"

@@ -19,6 +19,11 @@ const routes = [
     name: 'Register',
     component: Register
   },
+  {
+    path: '/form',
+    name: 'Form',
+    component: 'Form'
+  }
 ]
 
 const router = createRouter({
