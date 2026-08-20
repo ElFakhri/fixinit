@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../Home.vue' // Sesuaikan letak folder jika berbeda
 import Login from '../Login.vue'
-import Register from '../register.vue'
+import Register from '../Register.vue'
 
 const routes = [
   {

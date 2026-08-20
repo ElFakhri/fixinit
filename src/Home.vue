@@ -168,8 +168,8 @@
 <script>
 import { log } from 'firebase/firestore/pipelines';
 import { auth, storage } from  './JS/firebase.js'
-import LoginPage from './login.vue'
-import RegisterPage from './register.vue'
+import LoginPage from './Login.vue'
+import RegisterPage from './Register.vue'
 
 export default {
   name: 'App',

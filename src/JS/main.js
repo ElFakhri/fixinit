@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import '../style/style.css'
-import App from '../app.vue'
+import App from '../App.vue'
 import router from './router.js' // 1. Panggil file router tadi
 
 const app = createApp(App)
