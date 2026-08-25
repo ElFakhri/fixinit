@@ -2,19 +2,20 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../src/JS/firebase.js"; // Sesuaikan jika foldernya berbeda
+import { auth } from "/src/JS/firebase.js";
 import { onAuthStateChanged } from "firebase/auth";
 
-// 1. Import fungsi tambahan dari Firebase Data Connect
 import {
   connectDataConnectEmulator,
   getDataConnect,
 } from "firebase/data-connect";
-// 2. Panggil addNewUser DAN connectorConfig dari hasil generate
 import { addNewUser, connectorConfig } from "@dataconnect/generated";
 
-// 3. KUNCI DATA CONNECT KE EMULATOR LOKAL (PORT 9399)
-connectDataConnectEmulator(getDataConnect(connectorConfig), "127.0.0.1", 9399);
+const isLocalDev = import.meta.env.DEV && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+
+if (isLocalDev) {
+  connectDataConnectEmulator(getDataConnect(connectorConfig), "127.0.0.1", 9399);
+}
 
 const router = useRouter();
 const lokasi = ref("");
