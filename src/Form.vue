@@ -1,7 +1,6 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "/src/JS/firebase.js";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -10,6 +9,7 @@ import {
   getDataConnect,
 } from "firebase/data-connect";
 import { addNewUser, connectorConfig } from "@dataconnect/generated";
+import { mutationRef, executeMutation } from "firebase/data-connect";
 
 const isLocalDev = import.meta.env.DEV && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
 
@@ -22,16 +22,39 @@ const lokasi = ref("");
 const description = ref("");
 const namaLengkap = ref("");
 const picture = ref(null)
+const email = ref("");
+
+// current authenticated user (populated by onAuthStateChanged)
+let user = null;
+
+onAuthStateChanged(auth, (u) => {
+  user = u;
+  if (u && u.email) email.value = u.email;
+});
+
+// Simple wrapper to invoke the `addFormPengaduan` mutation on Data Connect
+const dcInstance = getDataConnect(connectorConfig);
+async function addFormPengaduan(vars) {
+  const ref = mutationRef(dcInstance, 'addFormPengaduan', vars);
+  return executeMutation(ref);
+}
 
 const tanganiForm = async () => {
   try {
+    // Pastikan user sudah login
+    if (!user) {
+      alert("Silakan login terlebih dahulu.");
+      router.push("/login");
+      return;
+    }
+
     // Simpan Pengaduan ke PostgreSQL Data Connect (Sekarang sudah di-lock ke Lokal!)
     await addFormPengaduan({
       id: user.uid,
       namaLengkap: namaLengkap.value,
-      email: user.email,
+      email: user.email || email.value,
       description: description.value,
-      picture: picture.value,
+      pictureUrl: picture.value,
       lokasi: lokasi.value
     });
 
@@ -150,7 +173,7 @@ const tanganiForm = async () => {
               ></label
             >
             <input
-              type="file" @change="picture = $event.target.files[0]"
+              type="file" @change="(e) => picture.value = $event.target.files[0]"
               class="w-full px-5 py-4 rounded bg-gray-50 border border-gray-200 text-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all duration-300"
               required
             />

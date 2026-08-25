@@ -18,6 +18,7 @@ mutation addNewUser($id: String!, $email: String!, $namaLengkap: String!) @auth(
 mutation addFormPengaduan(
   $id: String!,
   $namaLengkap: String!,
+  $email: String!,
   $description: String!,
   $lokasi: String!,
   $pictureUrl: String
@@ -25,8 +26,9 @@ mutation addFormPengaduan(
   pengaduan_insert(data: {
     id: $id,
     namaLengkap: $namaLengkap,
+    email: $email,
     description: $description,
     lokasi: $lokasi,
-    pictureURl: $pictureUrl
+    pictureUrl: $pictureUrl
   })
 }
