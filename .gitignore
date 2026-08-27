@@ -69,4 +69,4 @@ node_modules/
 .dataconnect
 
 # dataconnect generated
-.dataconnect-generated/
+src/dataconnect-generated
