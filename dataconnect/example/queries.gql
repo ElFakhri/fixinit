@@ -14,3 +14,21 @@ mutation addNewUser($id: String!, $email: String!, $namaLengkap: String!) @auth(
     namaLengkap: $namaLengkap
   })
 }
+
+mutation addFormPengaduan(
+  $id: String!,
+  $namaLengkap: String!,
+  $email: String!,
+  $description: String!,
+  $lokasi: String!,
+  $pictureUrl: String
+) @auth(level: PUBLIC) {
+  pengaduan_insert(data: {
+    id: $id,
+    namaLengkap: $namaLengkap,
+    email: $email,
+    description: $description,
+    lokasi: $lokasi,
+    pictureUrl: $pictureUrl
+  })
+}

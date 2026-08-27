@@ -9,3 +9,14 @@ type Profile @table {
   
   dibuatPada: Timestamp! @default(expr: "request.time")
 }
+
+# membuat tabel Pengaduan
+type Pengaduan @table {
+  id: String!
+  namaLengkap: String!
+  email: String!
+  description: String!
+  lokasi: String!
+  pictureUrl: String
+  dibuatPada: Timestamp! @default(expr: "request.time")
+}

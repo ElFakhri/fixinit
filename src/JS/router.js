@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../Home.vue' // Sesuaikan letak folder jika berbeda
 import Login from '../Login.vue'
-import Register from '../register.vue'
+import Register from '../Register.vue'
+import Form from '../Form.vue'
 
 const routes = [
   {
@@ -19,6 +20,11 @@ const routes = [
     name: 'Register',
     component: Register
   },
+  {
+    path: '/form',
+    name: 'Form',
+    component: Form
+  }
 ]
 
 const router = createRouter({
