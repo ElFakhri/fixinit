@@ -70,3 +70,5 @@ node_modules/
 
 # dataconnect generated
 src/dataconnect-generated
+
+dist/
