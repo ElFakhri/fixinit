@@ -87,32 +87,28 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-// 1. Import fungsi Login dari Firebase
 import { signInWithEmailAndPassword } from 'firebase/auth';
-// 2. Ambil "satpam" yang sudah terkoneksi ke emulator lokal
 import { auth } from './JS/firebase.js'; 
 
 const router = useRouter();
 
-// Variabel penampung inputan form
 const email = ref('');
 const password = ref('');
 
-// Fungsi yang dipanggil saat form disubmit (tombol MASUK ditekan)
 const handleLogin = async () => {
   try {
-    // Serahkan kunci ke Pos Satpam untuk dicek
     const kredensialUser = await signInWithEmailAndPassword(auth, email.value, password.value);
     
     console.log("Berhasil login sebagai:", kredensialUser.user.email);
-    alert('Login berhasil! Selamat datang kembali di FixinIT.');
-    
-    // Arahkan pengguna ke halaman beranda (Home) setelah sukses
-    router.push('/'); 
+    if (user.value.role == 'admin') {
+      router.push('/Admin'); // Sesuaikan dengan rute yang ada
+    } else {
+      router.push('/');
+    }
+    // router.push('/')
   } catch (error) {
     console.error("Gagal login:", error);
     
-    // Pesan error jika salah password/email
     alert("Login gagal. Pastikan email dan password yang dimasukkan sudah benar.");
   }
 };

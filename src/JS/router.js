@@ -3,6 +3,7 @@ import Home from '../Home.vue' // Sesuaikan letak folder jika berbeda
 import Login from '../Login.vue'
 import Register from '../Register.vue'
 import Form from '../Form.vue'
+import Admin from '../Admin.vue'
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     path: '/form',
     name: 'Form',
     component: Form
+  },
+  {
+    path: '/Admin',
+    name: 'Admin',
+    component: Admin
   }
 ]
 

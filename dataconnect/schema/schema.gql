@@ -5,7 +5,7 @@ type Profile @table {
   email: String! @unique
   namaLengkap: String!
   
-  role: String! @default(value: "warga") 
+  role: String! @default(value: "admin") 
   
   dibuatPada: Timestamp! @default(expr: "request.time")
 }

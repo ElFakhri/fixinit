@@ -32,3 +32,20 @@ mutation addFormPengaduan(
     pictureUrl: $pictureUrl
   })
 }
+
+mutation UpdateUser($id: String!, $namaLengkap: String!, $role: String) @auth(level: PUBLIC) {
+  profile_update(id: $id, data: {
+    namaLengkap: $namaLengkap,
+    role: $role
+  })
+}
+
+mutation HapusUser($id: String!) @auth(level: PUBLIC) {
+  profile_delete(id: $id)
+}
+
+  mutation ubahRoleUser($id: String!, $role: String!) @auth(level: PUBLIC) {
+  profile_update(id: $id, data: {
+    role: $role
+  })
+}
