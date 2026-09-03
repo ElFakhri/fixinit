@@ -12,26 +12,36 @@
     <!-- Area Utama -->
     <div class="content">
       <h1>Daftar Laporan</h1>
-      
-      <!-- Tabel Data -->
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Pelapor</th>
-            <th>Deskripsi</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="lap in daftarLaporan" :key="lap.id">
-            <td>{{ lap.id }}</td>
-            <td>{{ lap.author_name || lap.profile_id }}</td>
-            <td>{{ lap.description }}</td>
-            <td>{{ lap.status }}</td>
-          </tr>
-        </tbody>
-      </table>
+
+      <div v-if="loading" class="py-8">Memuat data...</div>
+
+      <div v-else>
+        <div v-if="unauthorized" class="p-6 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700">
+          <p>{{ unauthMessage }}</p>
+          <div class="mt-4">
+            <button v-if="unauthMessage.includes('login')" @click="router.push('/login')" class="px-3 py-2 bg-yellow-400 rounded font-bold">Ke Halaman Masuk</button>
+          </div>
+        </div>
+
+        <table v-else class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Pelapor</th>
+              <th>Deskripsi</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="lap in daftarLaporan" :key="lap.id">
+              <td>{{ lap.id }}</td>
+              <td>{{ lap.author_name || lap.profile_id }}</td>
+              <td>{{ lap.description }}</td>
+              <td>{{ lap.status }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       
     </div>
   </div>
@@ -44,8 +54,12 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const daftarLaporan = ref([]);
+const loading = ref(true);
+const unauthorized = ref(false);
+const unauthMessage = ref('');
 
 const ambilData = async () => {
+  loading.value = true;
   try {
     const token = localStorage.getItem('token');
     const res = await api.get('/api/admin/reports', {
@@ -54,9 +68,24 @@ const ambilData = async () => {
       }
     });
     daftarLaporan.value = res.data.reports || [];
+    unauthorized.value = false;
+    unauthMessage.value = '';
     console.log('Data laporan berhasil diambil:', daftarLaporan.value);
   } catch (error) {
     console.error('Gagal mengambil data laporan:', error);
+    const status = error.response?.status;
+    if (status === 401) {
+      unauthorized.value = true;
+      unauthMessage.value = 'Anda belum masuk. Silakan login untuk mengakses dashboard admin.';
+    } else if (status === 403) {
+      unauthorized.value = true;
+      unauthMessage.value = 'Anda tidak memiliki wewenang untuk mengakses dashboard ini.';
+    } else {
+      unauthorized.value = true;
+      unauthMessage.value = 'Gagal memuat data. Silakan coba lagi nanti.';
+    }
+  } finally {
+    loading.value = false;
   }
 };
 
