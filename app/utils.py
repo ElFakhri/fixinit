@@ -7,10 +7,12 @@ def admin_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
-        
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization'].split(" ")[1]
-            
+
+        auth_header = request.headers.get('Authorization', '')
+        parts = auth_header.split()
+        if len(parts) == 2 and parts[0].lower() == 'bearer':
+            token = parts[1]
+
         if not token:
             return jsonify({"error": "Authentication token is missing!"}), 401
             
@@ -33,8 +35,14 @@ def admin_required(f):
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = request.headers.get('Authorization', '').split(" ")[1] if 'Authorization' in request.headers else None
-        if not token: return jsonify({"error": "Token missing"}), 401
+        token = None
+        auth_header = request.headers.get('Authorization', '')
+        parts = auth_header.split()
+        if len(parts) == 2 and parts[0].lower() == 'bearer':
+            token = parts[1]
+
+        if not token:
+            return jsonify({"error": "Token missing"}), 401
         try:
             data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
             current_user = Profile.query.get(data['sub'])
