@@ -1,17 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from './JS/firebase.js';
-
-import { connectDataConnectEmulator, getDataConnect } from 'firebase/data-connect';
-import { addNewUser, connectorConfig } from './dataconnect-generated';
-
-const isLocalDev = import.meta.env.DEV && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-
-if (isLocalDev) {
-  connectDataConnectEmulator(getDataConnect(connectorConfig), '127.0.0.1', 9399);
-}
+import api from './api.js';
 
 const router = useRouter();
 const email = ref('');
@@ -20,23 +10,17 @@ const namaLengkap = ref('');
 
 const tanganiRegistrasi = async () => {
   try {
-    // Buat akun di Firebase Auth (Lokal)
-    const kredensialUser = await createUserWithEmailAndPassword(auth, email.value, password.value);
-    const user = kredensialUser.user;
-
-    // Simpan profil ke PostgreSQL Data Connect (Sekarang sudah di-lock ke Lokal!)
-    await addNewUser({
-      id: user.uid,
-      email: user.email,
+    const res = await api.post('/api/auth/register', {
+      email: email.value,
+      password: password.value,
       namaLengkap: namaLengkap.value
     });
 
     alert('Registrasi berhasil!');
     router.push('/login');
-
   } catch (error) {
-    console.error("Gagal registrasi:", error);
-    alert("Pendaftaran gagal: " + error.message);
+    console.error('Gagal registrasi:', error);
+    alert('Pendaftaran gagal: ' + (error.response?.data?.error || error.message));
   }
 };
 </script>

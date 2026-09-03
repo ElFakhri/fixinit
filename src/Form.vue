@@ -1,26 +1,13 @@
 <script setup>
 import { ref, nextTick } from "vue";
 import { useRouter } from "vue-router";
-import { auth } from "/src/JS/firebase.js";
-import { onAuthStateChanged } from "firebase/auth";
+import api from './api.js';
 
-import {
-  connectDataConnectEmulator,
-  getDataConnect,
-} from "firebase/data-connect";
-import { addNewUser, connectorConfig } from "@dataconnect/generated";
-import { mutationRef, executeMutation } from "firebase/data-connect";
-
-const isLocalDev = import.meta.env.DEV && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
-
-if (isLocalDev) {
-  connectDataConnectEmulator(getDataConnect(connectorConfig), "127.0.0.1", 9399);
-}
+// Running in local dev is fine; the Vue app will talk to the Flask API at /api/*
 
 const router = useRouter();
 const lokasi = ref("");
 const description = ref("");
-const namaLengkap = ref("");
 const picture = ref(null)
 const email = ref("");
 
@@ -141,45 +128,38 @@ const selectPhotonResult = async (r) => {
   setTimeout(() => mapInstance && mapInstance.invalidateSize && mapInstance.invalidateSize(), 100);
 };
 
-// current authenticated user (populated by onAuthStateChanged)
-let user = null;
-
-onAuthStateChanged(auth, (u) => {
-  user = u;
-  if (u && u.email) email.value = u.email;
-});
-
-// Simple wrapper to invoke the `addFormPengaduan` mutation on Data Connect
-const dcInstance = getDataConnect(connectorConfig);
-async function addFormPengaduan(vars) {
-  const ref = mutationRef(dcInstance, 'addFormPengaduan', vars);
-  return executeMutation(ref);
-}
+// Determine logged-in user (stored during login)
+const storedUser = localStorage.getItem('user');
+let user = storedUser ? JSON.parse(storedUser) : null;
+if (user && user.email) email.value = user.email;
 
 const tanganiForm = async () => {
   try {
-    // Pastikan user sudah login
     if (!user) {
-      alert("Silakan login terlebih dahulu.");
-      router.push("/login");
+      alert('Silakan login terlebih dahulu.');
+      router.push('/login');
       return;
     }
 
-    // Simpan Pengaduan ke PostgreSQL Data Connect (Sekarang sudah di-lock ke Lokal!)
-    await addFormPengaduan({
-      id: user.uid,
-      namaLengkap: namaLengkap.value,
-      email: user.email || email.value,
-      description: description.value,
-      pictureUrl: picture.value,
-      lokasi: lokasi.value
+    const token = localStorage.getItem('token');
+
+    const formData = new FormData();
+    formData.append('description', description.value);
+    formData.append('lokasi', lokasi.value);
+    if (picture.value) formData.append('picture', picture.value);
+
+    const res = await api.post('/api/reports/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: token ? `Bearer ${token}` : ''
+      }
     });
 
-    alert("Formulir berhasil dilapor, menunggu verifikasi!");
-    router.push("/login");
+    alert('Formulir berhasil dilapor, menunggu verifikasi!');
+    router.push('/');
   } catch (error) {
-    console.error("Gagal registrasi:", error);
-    alert("Pendaftaran gagal: " + error.message);
+    console.error('Gagal mengirim formulir:', error);
+    alert('Pengiriman formulir gagal: ' + (error.response?.data?.error || error.message));
   }
 };
 </script>
@@ -216,25 +196,13 @@ const tanganiForm = async () => {
             Formulir Pengaduan
           </h1>
           <p class="text-gray-500 font-medium">
-            Masukkan Nama, Deskripsi, Alamat Lokasi, dan Bukti Foto Anda untuk
+            Masukkan Deskripsi, Alamat Lokasi, dan Bukti Foto Anda untuk
             Melengkapi Formulir.
           </p>
         </div>
 
         <!-- Form -->
         <form @submit.prevent="tanganiForm" class="space-y-6">
-          <div>
-            <label for="text" class="block text-sm font-bold text-gray-700 mb-2"
-              >Nama</label
-            >
-            <input
-              type="text"
-              v-model="namaLengkap"
-              placeholder="Nama Lengkap"
-              class="w-full px-5 py-4 rounded bg-gray-50 border border-gray-200 text-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all duration-300"
-              required
-            />
-          </div>
 
           <!-- input Emmail Pengguna -->
 

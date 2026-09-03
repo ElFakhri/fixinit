@@ -325,33 +325,7 @@
 </template>
 
 <script>
-import { log } from "firebase/firestore/pipelines";
-import { auth, storage } from "./JS/firebase.js";
-import LoginPage from "./Login.vue";
-import RegisterPage from "./Register.vue";
-
 export default {
-  name: "App",
-  components: {
-    LoginPage,
-  },
-  method: {
-    cobaLogin() {
-      console.log("test firebase work", auth);
-    },
-  },
-  components: {
-    RegisterPage,
-  },
-  method: {
-    TestRegister() {
-      console.log("test firebase2 work", auth);
-    },
-  },
-};
-
-// export default {
-//   name: 'HomePage',
-
-// }
+  name: 'HomePage'
+}
 </script>

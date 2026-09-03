@@ -87,8 +87,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from './JS/firebase.js'; 
+import api from './api.js';
 
 const router = useRouter();
 
@@ -97,19 +96,23 @@ const password = ref('');
 
 const handleLogin = async () => {
   try {
-    const kredensialUser = await signInWithEmailAndPassword(auth, email.value, password.value);
-    
-    console.log("Berhasil login sebagai:", kredensialUser.user.email);
-    if (user.value.role == 'admin') {
-      router.push('/Admin'); // Sesuaikan dengan rute yang ada
+    const res = await api.post('/api/auth/login', {
+      email: email.value,
+      password: password.value
+    });
+
+    const { token, user } = res.data;
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+
+    if (user && user.role === 'admin') {
+      router.push('/Admin');
     } else {
       router.push('/');
     }
-    // router.push('/')
   } catch (error) {
-    console.error("Gagal login:", error);
-    
-    alert("Login gagal. Pastikan email dan password yang dimasukkan sudah benar.");
+    console.error('Gagal login:', error);
+    alert('Login gagal. Pastikan email dan password yang dimasukkan sudah benar.');
   }
 };
 </script>

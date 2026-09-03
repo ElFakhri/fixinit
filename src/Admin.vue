@@ -11,25 +11,24 @@
     
     <!-- Area Utama -->
     <div class="content">
-      <h1>Daftar Pengguna</h1>
+      <h1>Daftar Laporan</h1>
       
       <!-- Tabel Data -->
       <table class="data-table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Email</th>
-            <th>Nama Lengkap</th>
-            <th>Role</th>
+            <th>Pelapor</th>
+            <th>Deskripsi</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
-          <!-- Perulangan v-for untuk mencetak baris sebanyak jumlah data -->
-          <tr v-for="user in daftarUser" :key="user.id">
-            <td>{{ user.id }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.namaLengkap }}</td>
-            <td>{{ user.role }}</td>
+          <tr v-for="lap in daftarLaporan" :key="lap.id">
+            <td>{{ lap.id }}</td>
+            <td>{{ lap.author_name || lap.profile_id }}</td>
+            <td>{{ lap.description }}</td>
+            <td>{{ lap.status }}</td>
           </tr>
         </tbody>
       </table>
@@ -40,25 +39,27 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { lihatSemuaUser } from './dataconnect-generated'; // Sesuaikan titik jalurnya jika perlu
+import api from './api.js';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const daftarUser = ref([]);
+const daftarLaporan = ref([]);
 
 const ambilData = async () => {
   try {
-    const respon = await lihatSemuaUser();
-    daftarUser.value = respon.data.profiles; 
-
-    console.log("Data pengguna berhasil diambil:", daftarUser.value);
+    const token = localStorage.getItem('token');
+    const res = await api.get('/api/admin/reports', {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : ''
+      }
+    });
+    daftarLaporan.value = res.data.reports || [];
+    console.log('Data laporan berhasil diambil:', daftarLaporan.value);
   } catch (error) {
-    console.error("Gagal mengambil data pengguna:", error);
+    console.error('Gagal mengambil data laporan:', error);
   }
 };
 
-
-// 4. Jalankan fungsi penarikan data tepat saat halaman web pertama kali terbuka
 onMounted(() => {
   ambilData();
 });
