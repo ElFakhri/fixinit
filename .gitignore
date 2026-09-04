@@ -72,3 +72,5 @@ node_modules/
 src/dataconnect-generated
 
 dist/
+
+AGENTS.md
