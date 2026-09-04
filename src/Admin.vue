@@ -2,24 +2,40 @@
   <div class="admin-container">
     <!-- Sidebar -->
     <div class="sidebar">
+      <div>
+        <div
+          class="text-5xl font-extrabold tracking-tighter text-primary mb-6 p-2"
+        >
+          <span>Fixin</span><span class="text-white drop-shadow-md">IT</span>
+        </div>
+      </div>
       <h2>Ruang Kendali</h2>
       <ul>
         <li>Data Pengguna</li>
         <li>Data Pengaduan</li>
       </ul>
     </div>
-    
+
     <!-- Area Utama -->
     <div class="content">
-      <h1>Daftar Laporan</h1>
+      <h1 class="text-4xl font-bold text-gray-800 mb-8 mt-4">Daftar Laporan</h1>
 
       <div v-if="loading" class="py-8">Memuat data...</div>
 
       <div v-else>
-        <div v-if="unauthorized" class="p-6 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700">
+        <div
+          v-if="unauthorized"
+          class="p-6 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700"
+        >
           <p>{{ unauthMessage }}</p>
           <div class="mt-4">
-            <button v-if="unauthMessage.includes('login')" @click="router.push('/login')" class="px-3 py-2 bg-yellow-400 rounded font-bold">Ke Halaman Masuk</button>
+            <button
+              v-if="unauthMessage.includes('login')"
+              @click="router.push('/login')"
+              class="px-3 py-2 bg-yellow-400 rounded font-bold"
+            >
+              Ke Halaman Masuk
+            </button>
           </div>
         </div>
 
@@ -29,6 +45,8 @@
               <th>ID</th>
               <th>Pelapor</th>
               <th>Deskripsi</th>
+              <th>Lokasi</th>
+              <th>Gambar</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -37,52 +55,66 @@
               <td>{{ lap.id }}</td>
               <td>{{ lap.author_name || lap.profile_id }}</td>
               <td>{{ lap.description }}</td>
+              <td>{{ lap.lokasi }}</td>
+              <td>
+                <img
+                  v-if="lap.pictureUrl"
+                  :src="urlGambar(lap.pictureUrl)"
+                  :alt="lap.description"
+                  class="report-image"
+                />
+                <span v-else>Tidak ada gambar</span>
+              </td>
               <td>{{ lap.status }}</td>
             </tr>
           </tbody>
         </table>
       </div>
-      
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import api from './api.js';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from "vue";
+import api from "./api.js";
+import { useRouter } from "vue-router";
 
 const router = useRouter();
 const daftarLaporan = ref([]);
 const loading = ref(true);
 const unauthorized = ref(false);
-const unauthMessage = ref('');
+const unauthMessage = ref("");
+
+const urlGambar = (filename) =>
+  `${api.defaults.baseURL}/api/reports/images/${encodeURIComponent(filename)}`;
 
 const ambilData = async () => {
   loading.value = true;
   try {
-    const token = localStorage.getItem('token');
-    const res = await api.get('/api/admin/reports', {
+    const token = localStorage.getItem("token");
+    const res = await api.get("/api/admin/reports", {
       headers: {
-        Authorization: token ? `Bearer ${token}` : ''
-      }
+        Authorization: token ? `Bearer ${token}` : "",
+      },
     });
     daftarLaporan.value = res.data.reports || [];
     unauthorized.value = false;
-    unauthMessage.value = '';
-    console.log('Data laporan berhasil diambil:', daftarLaporan.value);
+    unauthMessage.value = "";
+    console.log("Data laporan berhasil diambil:", daftarLaporan.value);
   } catch (error) {
-    console.error('Gagal mengambil data laporan:', error);
+    console.error("Gagal mengambil data laporan:", error);
     const status = error.response?.status;
     if (status === 401) {
       unauthorized.value = true;
-      unauthMessage.value = 'Anda belum masuk. Silakan login untuk mengakses dashboard admin.';
+      unauthMessage.value =
+        "Anda belum masuk. Silakan login untuk mengakses dashboard admin.";
     } else if (status === 403) {
       unauthorized.value = true;
-      unauthMessage.value = 'Anda tidak memiliki wewenang untuk mengakses dashboard ini.';
+      unauthMessage.value =
+        "Anda tidak memiliki wewenang untuk mengakses dashboard ini.";
     } else {
       unauthorized.value = true;
-      unauthMessage.value = 'Gagal memuat data. Silakan coba lagi nanti.';
+      unauthMessage.value = "Gagal memuat data. Silakan coba lagi nanti.";
     }
   } finally {
     loading.value = false;
@@ -136,25 +168,41 @@ onMounted(() => {
 /* Desain Tabel Murni */
 .data-table {
   width: 100%;
-  border-collapse: collapse;
   background-color: white;
   margin-top: 20px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
 }
 
-.data-table th, .data-table td {
+.data-table th,
+.data-table td {
   padding: 15px;
   border: 1px solid #e0e0e0;
   text-align: left;
 }
 
 .data-table th {
-  background-color: #f1c40f; /* Warna kuning khas FixinIT */
+  background-color: white; /* Warna kuning khas FixinIT */
   color: #333;
   font-weight: bold;
 }
 
 .data-table tr:hover {
+  border-radius: 12px;
+  border: none;
   background-color: #f9f9f9;
+}
+
+.report-image {
+  width : 250px;
+  height : 150px;
+  max-width: 250px;
+  max-height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  
 }
 </style>
