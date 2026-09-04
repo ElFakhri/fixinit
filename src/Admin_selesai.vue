@@ -42,7 +42,7 @@
           <div
             class="border-none border-gray-500 rounded-lg p-4 shadow-sm w-1/4"
           >
-            <p class="text-2xl font-semibold">{{ daftarLaporan.length }}</p>
+            <p class="text-2xl font-semibold">{{ semuaLaporan.length }}</p>
             <p>Laporan Ditemukan</p>
           </div>
           <div
@@ -50,7 +50,7 @@
           >
             <p class="text-2xl font-semibold">
               {{
-                daftarLaporan.filter((lap) => lap.status === "pending").length
+                semuaLaporan.filter((lap) => lap.status === "pending").length
               }}
             </p>
             <p>Laporan Pending</p>
@@ -59,18 +59,17 @@
             class="border-none border-gray-500 rounded-lg p-4 shadow-sm w-1/4"
           >
             <p class="text-2xl font-semibold">
-              {{
-                daftarLaporan.filter((lap) => lap.status === "proses").length
-              }}
+              {{ semuaLaporan.filter((lap) => lap.status === "proses").length }}
             </p>
             <p>Laporan Proses</p>
           </div>
+
           <div
             class="border-none border-gray-500 rounded-lg p-4 shadow-sm w-1/4"
           >
             <p class="text-2xl font-semibold">
               {{
-                daftarLaporan.filter((lap) => lap.status === "selesai").length
+                semuaLaporan.filter((lap) => lap.status === "selesai").length
               }}
             </p>
             <p>Laporan Selesai</p>
@@ -88,6 +87,7 @@
         >
           Lihat Laporan yang telah Selesai
         </router-link>
+
         <table class="data-table">
           <thead>
             <tr>
@@ -117,19 +117,7 @@
               </td>
               <td>
                 <span
-                  v-if="lap.status === 'pending'"
-                  class="text-yellow-400 font-bold"
-                >
-                  Pending
-                </span>
-                <span
-                  v-else-if="lap.status === 'proses'"
-                  class="text-blue-400 font-bold"
-                >
-                  Proses
-                </span>
-                <span
-                  v-else-if="lap.status === 'selesai'"
+                  v-if="lap.status === 'selesai'"
                   class="text-green-400 font-bold"
                 >
                   Selesai
@@ -156,6 +144,7 @@ import api from "./api.js";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
+const semuaLaporan = ref([]);
 const daftarLaporan = ref([]);
 const loading = ref(true);
 const unauthorized = ref(false);
@@ -173,7 +162,11 @@ const ambilData = async () => {
         Authorization: token ? `Bearer ${token}` : "",
       },
     });
-    daftarLaporan.value = res.data.reports || [];
+    semuaLaporan.value = res.data.reports || [];
+
+    daftarLaporan.value = (res.data.reports || []).filter(
+      (laporan) => laporan.status === "selesai",
+    );
     unauthorized.value = false;
     unauthMessage.value = "";
     console.log("Data laporan berhasil diambil:", daftarLaporan.value);
