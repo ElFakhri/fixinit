@@ -239,6 +239,7 @@ onMounted(() => {
   background-color: #2c3e50; /* Warna kuning khas FixinIT */
   color: #ffffff;
   font-weight: bold;
+  text-align: center;
 }
 
 .data-table tr:hover {
