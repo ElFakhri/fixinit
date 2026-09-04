@@ -7,9 +7,9 @@
           class="text-5xl font-extrabold tracking-tighter text-primary mb-6 p-2"
         >
           <span>Fixin</span><span class="text-white drop-shadow-md">IT</span>
+          <p class="text-xl font-bold">Ruang Kendali</p>
         </div>
       </div>
-      <h2>Ruang Kendali</h2>
       <ul>
         <li>Data Pengguna</li>
         <li>Data Pengaduan</li>
@@ -38,12 +38,12 @@
             </button>
           </div>
         </div>
-        <div v-else class="py-8 flex flex-row gap-8">
-          <div>
+        <div v-else class="py-8 flex flex-row gap-8 ">
+          <div class="border-none border-gray-500 rounded-lg p-4 shadow-sm w-1/4">
             <p class="text-2xl font-semibold">{{ daftarLaporan.length }}</p>
             <p>Laporan Ditemukan</p>
           </div>
-          <div>
+          <div class="border-none border-gray-500 rounded-lg p-4 shadow-sm w-1/4">
             <p class="text-2xl font-semibold">
               {{
                 daftarLaporan.filter((lap) => lap.status === "pending").length
@@ -51,7 +51,7 @@
             </p>
             <p>Laporan Pending</p>
           </div>
-          <div>
+          <div class="border-none border-gray-500 rounded-lg p-4 shadow-sm w-1/4">
             <p class="text-2xl font-semibold">
               {{
                 daftarLaporan.filter((lap) => lap.status === "proses").length
@@ -59,7 +59,7 @@
             </p>
             <p>Laporan Proses</p>
           </div>
-          <div>
+          <div class="border-none border-gray-500 rounded-lg p-4 shadow-sm w-1/4">
             <p class="text-2xl font-semibold">
               {{
                 daftarLaporan.filter((lap) => lap.status === "selesai").length
@@ -77,6 +77,7 @@
               <th>Lokasi</th>
               <th>Gambar</th>
               <th>Status</th>
+              <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -94,7 +95,25 @@
                 />
                 <span v-else>Tidak ada gambar</span>
               </td>
-              <td>{{ lap.status }}</td>
+              <td>
+                <span v-if="lap.status === 'pending'" class="bg-yellow-400 border border-yellow-500 text-white px-2 py-1 rounded shadow-sm">
+                  Pending
+                </span>
+                <span v-else-if="lap.status === 'proses'" class="bg-blue-400 border border-blue-500 text-white px-2 py-1 rounded shadow-sm">
+                  Proses
+                </span>
+                <span v-else-if="lap.status === 'selesai'" class="bg-green-400 border border-green-500 text-white px-2 py-1 rounded shadow-sm">
+                  Selesai
+                </span>
+              </td>
+              <td>
+                <button
+              
+                  class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Validasi
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -166,7 +185,7 @@ onMounted(() => {
 /* Desain Sidebar Kiri */
 .sidebar {
   width: 250px;
-  background-color: #2c3e50;
+  background-color: #fbbf24;
   color: white;
   padding: 20px;
 }
@@ -179,12 +198,12 @@ onMounted(() => {
 
 .sidebar li {
   padding: 12px 0;
-  border-bottom: 1px solid #3d566e;
+  border-bottom: 1px solid #ffffff;
   cursor: pointer;
 }
 
 .sidebar li:hover {
-  color: #f1c40f;
+  color: #f5db71;
 }
 
 /* Desain Area Kanan */
@@ -205,6 +224,9 @@ onMounted(() => {
   border-radius: 12px;
   overflow: hidden;
 }
+.data-table th {
+  background-color: #2c3e50;
+}
 
 .data-table th,
 .data-table td {
@@ -214,8 +236,8 @@ onMounted(() => {
 }
 
 .data-table th {
-  background-color: white; /* Warna kuning khas FixinIT */
-  color: #333;
+  background-color: #2c3e50; /* Warna kuning khas FixinIT */
+  color: #ffffff;
   font-weight: bold;
 }
 
@@ -226,10 +248,10 @@ onMounted(() => {
 }
 
 .report-image {
-  width: 250px;
-  height: 150px;
-  max-width: 250px;
-  max-height: 150px;
+  width: 150px;
+  height: 100px;
+  max-width: 150px;
+  max-height: 100px;
   object-fit: cover;
   border-radius: 8px;
 }
