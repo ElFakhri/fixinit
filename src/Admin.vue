@@ -38,8 +38,37 @@
             </button>
           </div>
         </div>
-
-        <table v-else class="data-table">
+        <div v-else class="py-8 flex flex-row gap-8">
+          <div>
+            <p class="text-2xl font-semibold">{{ daftarLaporan.length }}</p>
+            <p>Laporan Ditemukan</p>
+          </div>
+          <div>
+            <p class="text-2xl font-semibold">
+              {{
+                daftarLaporan.filter((lap) => lap.status === "pending").length
+              }}
+            </p>
+            <p>Laporan Pending</p>
+          </div>
+          <div>
+            <p class="text-2xl font-semibold">
+              {{
+                daftarLaporan.filter((lap) => lap.status === "proses").length
+              }}
+            </p>
+            <p>Laporan Proses</p>
+          </div>
+          <div>
+            <p class="text-2xl font-semibold">
+              {{
+                daftarLaporan.filter((lap) => lap.status === "selesai").length
+              }}
+            </p>
+            <p>Laporan Selesai</p>
+          </div>
+        </div>
+        <table class="data-table">
           <thead>
             <tr>
               <th>ID</th>
@@ -171,10 +200,10 @@ onMounted(() => {
   background-color: white;
   margin-top: 20px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-    border-collapse: separate;
-    border-spacing: 0;
-    border-radius: 12px;
-    overflow: hidden;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .data-table th,
@@ -197,12 +226,11 @@ onMounted(() => {
 }
 
 .report-image {
-  width : 250px;
-  height : 150px;
+  width: 250px;
+  height: 150px;
   max-width: 250px;
   max-height: 150px;
   object-fit: cover;
   border-radius: 8px;
-  
 }
 </style>
