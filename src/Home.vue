@@ -5,13 +5,31 @@
       <div class="text-3xl font-bold tracking-tight text-primary">
         <span>Fixin</span><span class="text-yellow-400">IT</span>
       </div>
-      <div class="flex items-center space-x-3">
-        <router-link to="/login" class="font-bold text-primary hover:text-gray-500 transition-colors">
-          Login
-        </router-link>
-        <router-link to="/form" class="text-yellow-400 font-bold py-3 px-8 hover:text-black transition-colors">
-          Laporkan
-        </router-link>
+      <div class="flex items-center gap-3">
+
+        <!-- Sudah login -->
+        <template v-if="user">
+          <span class="text-sm font-bold text-primary">
+            {{ user.namaLengkap || user.name || user.email }}
+          </span>
+          <router-link to="/form" class="bg-yellow-400 text-primary font-bold py-2.5 px-6 text-sm hover:bg-yellow-500 transition-colors">
+            Laporkan
+          </router-link>
+          <button @click="logout" class="text-sm font-bold text-gray-400 hover:text-primary transition-colors">
+            Keluar
+          </button>
+        </template>
+
+        <!-- Belum login -->
+        <template v-else>
+          <router-link to="/login" class="font-bold text-sm text-primary hover:text-gray-500 transition-colors">
+            Masuk
+          </router-link>
+          <router-link to="/form" class="bg-yellow-400 text-primary font-bold py-2.5 px-6 text-sm hover:bg-yellow-500 transition-colors">
+            Laporkan
+          </router-link>
+        </template>
+
       </div>
     </nav>
 
@@ -102,18 +120,18 @@
     </section>
 
     <!-- FOOTER -->
-    <footer class="bg-primary text-white py-16 px-8 md:px-12">
+    <footer class="bg-yellow-400 text-black py-16 px-8 md:px-12">
       <div class="max-w-7xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8">
           <div class="md:col-span-2">
             <h6 class="text-sm uppercase tracking-[2px] font-bold mb-5">Tentang FixinIT</h6>
-            <p class="text-justify text-sm leading-relaxed max-w-lg text-gray-300">
+            <p class="text-justify text-sm leading-relaxed max-w-lg text-black/70">
               FixinIT adalah inisiatif untuk membantu masyarakat melaporkan kerusakan infrastruktur dengan cepat demi keselamatan bersama. Kami berfokus pada penyediaan platform yang efisien dan transparan untuk menghubungkan warga dengan otoritas terkait.
             </p>
           </div>
           <div>
             <h6 class="text-sm uppercase tracking-[2px] font-bold mb-5">Layanan</h6>
-            <ul class="space-y-3 text-sm text-gray-300">
+            <ul class="space-y-3 text-sm text-black/70">
               <li><a href="#" class="hover:text-yellow-400 transition-colors">Pengaduan Jalan</a></li>
               <li><a href="#" class="hover:text-yellow-400 transition-colors">Peta Interaktif</a></li>
               <li><a href="#" class="hover:text-yellow-400 transition-colors">Cek Status Laporan</a></li>
@@ -122,7 +140,7 @@
           </div>
           <div>
             <h6 class="text-sm uppercase tracking-[2px] font-bold mb-5">Tautan Cepat</h6>
-            <ul class="space-y-3 text-sm text-gray-300">
+            <ul class="space-y-3 text-sm text-black/70">
               <li><a href="#" class="hover:text-yellow-400 transition-colors">Tentang Kami</a></li>
               <li><a href="#" class="hover:text-yellow-400 transition-colors">Kontak Kami</a></li>
               <li><a href="#" class="hover:text-yellow-400 transition-colors">Pusat Bantuan</a></li>
@@ -132,7 +150,7 @@
         </div>
         <hr class="border-t border-white/20 my-8" />
         <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-          <div class="text-sm text-center md:text-left text-gray-300">
+          <div class="text-sm text-center md:text-left text-black/70">
             Copyright &copy; 2026 Hak Cipta Dilindungi oleh <a href="#" class="text-yellow-400 font-bold hover:text-white transition-colors">FixinIT</a>.
           </div>
           <ul class="flex space-x-4">
@@ -158,8 +176,22 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'HomePage'
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const user = ref(null)
+
+onMounted(() => {
+  const stored = localStorage.getItem('user')
+  if (stored) user.value = JSON.parse(stored)
+})
+
+const logout = () => {
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+  user.value = null
+  router.push('/')
 }
 </script>

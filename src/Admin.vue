@@ -180,6 +180,7 @@ const ambilData = async () => {
   } catch (error) {
     console.error("Gagal mengambil data laporan:", error);
     const status = error.response?.status;
+
     if (status === 401) {
       unauthorized.value = true;
       unauthMessage.value =
@@ -192,6 +193,7 @@ const ambilData = async () => {
       unauthorized.value = true;
       unauthMessage.value = "Gagal memuat data. Silakan coba lagi nanti.";
     }
+    
   } finally {
     loading.value = false;
   }
