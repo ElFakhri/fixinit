@@ -12,6 +12,13 @@
           <span class="text-sm font-bold text-primary">
             {{ user.namaLengkap || user.name || user.email }}
           </span>
+          <router-link
+            v-if="user.role === 'admin'"
+            to="/Admin"
+            class="bg-gray-900 text-white font-bold py-2.5 px-5 text-sm hover:bg-gray-700 transition-colors"
+          >
+            Dashboard
+          </router-link>
           <router-link to="/form" class="bg-yellow-400 text-primary font-bold py-2.5 px-6 text-sm hover:bg-yellow-500 transition-colors">
             Laporkan
           </router-link>

@@ -5,6 +5,7 @@ import Register from "../Register.vue";
 import Form from "../Form.vue";
 import Admin from "../Admin.vue";
 import AdminSelesai from "../Admin_selesai.vue";
+import AdminUsers from "../Admin_users.vue";
 
 const routes = [
   {
@@ -36,6 +37,11 @@ const routes = [
     path: "/Admin_selesai",
     name: "AdminSelesai",
     component: AdminSelesai,
+  },
+  {
+    path: "/Admin_users",
+    name: "AdminUsers",
+    component: AdminUsers,
   },
 ];
 

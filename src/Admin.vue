@@ -11,8 +11,8 @@
         </div>
       </div>
       <ul>
-        <li>Data Pengguna</li>
-        <li>Data Pengaduan</li>
+        <li><router-link to="/Admin_users" class="block w-full">Data Pengguna</router-link></li>
+        <li><router-link to="/Admin" class="block w-full">Data Pengaduan</router-link></li>
       </ul>
     </div>
 
@@ -50,7 +50,7 @@
           >
             <p class="text-2xl font-semibold">
               {{
-                daftarLaporan.filter((lap) => lap.status === "pending").length
+                daftarLaporan.filter((lap) => normalizeStatus(lap.status) === "pending").length
               }}
             </p>
             <p>Laporan Pending</p>
@@ -60,20 +60,20 @@
           >
             <p class="text-2xl font-semibold">
               {{
-                daftarLaporan.filter((lap) => lap.status === "proses").length
+                daftarLaporan.filter((lap) => normalizeStatus(lap.status) === "validated").length
               }}
             </p>
-            <p>Laporan Proses</p>
+            <p>Laporan Tervalidasi</p>
           </div>
           <div
             class="border-none border-gray-500 rounded-lg p-4 shadow-sm w-1/4"
           >
             <p class="text-2xl font-semibold">
               {{
-                daftarLaporan.filter((lap) => lap.status === "selesai").length
+                daftarLaporan.filter((lap) => normalizeStatus(lap.status) === "rejected").length
               }}
             </p>
-            <p>Laporan Selesai</p>
+            <p>Laporan Ditolak</p>
           </div>
         </div>
         <router-link
@@ -88,6 +88,12 @@
         >
           Lihat Laporan yang telah Selesai
         </router-link>
+        <router-link
+          to="/Admin_users"
+          class="px-4 py-2 bg-amber-400 text-white rounded hover:bg-amber-500 mt-4 inline-block ml-4"
+        >
+          Lihat Data Pengguna
+        </router-link>
         <table class="data-table">
           <thead>
             <tr>
@@ -96,6 +102,7 @@
               <th>Deskripsi</th>
               <th>Lokasi</th>
               <th>Gambar</th>
+              <th>Tanggal Dibuat</th>
               <th>Status</th>
               <th>Aksi</th>
             </tr>
@@ -115,31 +122,41 @@
                 />
                 <span v-else>Tidak ada gambar</span>
               </td>
+              <td>{{ formatDate(lap.dibuatPada) }}</td>
               <td>
                 <span
-                  v-if="lap.status === 'pending'"
+                  v-if="normalizeStatus(lap.status) === 'pending'"
                   class="text-yellow-400 font-bold"
                 >
                   Pending
                 </span>
                 <span
-                  v-else-if="lap.status === 'proses'"
-                  class="text-blue-400 font-bold"
-                >
-                  Proses
-                </span>
-                <span
-                  v-else-if="lap.status === 'selesai'"
+                  v-else-if="normalizeStatus(lap.status) === 'validated'"
                   class="text-green-400 font-bold"
                 >
-                  Selesai
+                  Tervalidasi
                 </span>
+                <span
+                  v-else-if="normalizeStatus(lap.status) === 'rejected'"
+                  class="text-red-400 font-bold"
+                >
+                  Ditolak
+                </span>
+                <span v-else class="text-gray-500 font-bold">Tidak diketahui</span>
               </td>
-              <td>
+              <td class="space-y-2">
                 <button
-                  class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  v-if="normalizeStatus(lap.status) !== 'validated'"
+                  @click="validasiLaporan(lap.id)"
+                  class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 block w-full"
                 >
                   Validasi
+                </button>
+                <button
+                  @click="hapusLaporan(lap.id)"
+                  class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 block w-full"
+                >
+                  Hapus
                 </button>
               </td>
             </tr>
@@ -164,14 +181,43 @@ const unauthMessage = ref("");
 const urlGambar = (filename) =>
   `${api.defaults.baseURL}/api/reports/images/${encodeURIComponent(filename)}`;
 
+const normalizeStatus = (status) => {
+  const value = String(status || "").trim().toLowerCase();
+
+  if (["validated", "selesai", "done"].includes(value)) return "validated";
+  if (["rejected", "ditolak"].includes(value)) return "rejected";
+  if (["pending", "proses"].includes(value)) return value === "proses" ? "pending" : value;
+
+  return "pending";
+};
+
+const formatDate = (value) => {
+  if (!value) return "-";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  return date.toLocaleString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  return {
+    Authorization: token ? `Bearer ${token}` : "",
+  };
+};
+
 const ambilData = async () => {
   loading.value = true;
   try {
-    const token = localStorage.getItem("token");
     const res = await api.get("/api/admin/reports", {
-      headers: {
-        Authorization: token ? `Bearer ${token}` : "",
-      },
+      headers: getAuthHeaders(),
     });
     daftarLaporan.value = res.data.reports || [];
     unauthorized.value = false;
@@ -193,9 +239,37 @@ const ambilData = async () => {
       unauthorized.value = true;
       unauthMessage.value = "Gagal memuat data. Silakan coba lagi nanti.";
     }
-    
   } finally {
     loading.value = false;
+  }
+};
+
+const validasiLaporan = async (reportId) => {
+  try {
+    await api.patch(
+      `/api/admin/reports/${reportId}/validate`,
+      {},
+      { headers: getAuthHeaders() },
+    );
+    await ambilData();
+  } catch (error) {
+    console.error("Gagal memvalidasi laporan:", error);
+    alert("Gagal memvalidasi laporan.");
+  }
+};
+
+const hapusLaporan = async (reportId) => {
+  const confirmed = window.confirm("Apakah Anda yakin ingin menghapus laporan ini?");
+  if (!confirmed) return;
+
+  try {
+    await api.delete(`/api/admin/reports/${reportId}`, {
+      headers: getAuthHeaders(),
+    });
+    await ambilData();
+  } catch (error) {
+    console.error("Gagal menghapus laporan:", error);
+    alert("Gagal menghapus laporan.");
   }
 };
 
