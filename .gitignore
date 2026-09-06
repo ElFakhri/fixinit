@@ -1,6 +1,7 @@
 backend/fixinit.db
 backend/.venv
 __pycache__/
+.env**
 # Logs
 logs
 *.log
