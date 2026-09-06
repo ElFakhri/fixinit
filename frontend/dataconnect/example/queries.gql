@@ -1,0 +1,51 @@
+query LihatSemuaUser @auth(level: PUBLIC) {
+  profiles {
+    id
+    email
+    namaLengkap
+    role
+  }
+}
+
+mutation addNewUser($id: String!, $email: String!, $namaLengkap: String!) @auth(level: PUBLIC) {
+  profile_insert(data: {
+    id: $id,
+    email: $email,
+    namaLengkap: $namaLengkap
+  })
+}
+
+mutation addFormPengaduan(
+  $id: String!,
+  $namaLengkap: String!,
+  $email: String!,
+  $description: String!,
+  $lokasi: String!,
+  $pictureUrl: String
+) @auth(level: PUBLIC) {
+  pengaduan_insert(data: {
+    id: $id,
+    namaLengkap: $namaLengkap,
+    email: $email,
+    description: $description,
+    lokasi: $lokasi,
+    pictureUrl: $pictureUrl
+  })
+}
+
+mutation UpdateUser($id: String!, $namaLengkap: String!, $role: String) @auth(level: PUBLIC) {
+  profile_update(id: $id, data: {
+    namaLengkap: $namaLengkap,
+    role: $role
+  })
+}
+
+mutation HapusUser($id: String!) @auth(level: PUBLIC) {
+  profile_delete(id: $id)
+}
+
+  mutation ubahRoleUser($id: String!, $role: String!) @auth(level: PUBLIC) {
+  profile_update(id: $id, data: {
+    role: $role
+  })
+}

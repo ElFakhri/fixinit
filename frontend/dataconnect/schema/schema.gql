@@ -1,0 +1,22 @@
+# Membuat tabel User
+type Profile @table {
+  id: String!
+
+  email: String! @unique
+  namaLengkap: String!
+  
+  role: String! @default(value: "admin") 
+  
+  dibuatPada: Timestamp! @default(expr: "request.time")
+}
+
+# membuat tabel Pengaduan
+type Pengaduan @table {
+  id: String!
+  namaLengkap: String!
+  email: String!
+  description: String!
+  lokasi: String!
+  pictureUrl: String
+  dibuatPada: Timestamp! @default(expr: "request.time")
+}
